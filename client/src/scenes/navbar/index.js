@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react'
 import {
   Box,
   IconButton,
@@ -9,7 +9,7 @@ import {
   FormControl,
   useTheme,
   useMediaQuery,
-} from "@mui/material";
+} from '@mui/material'
 import {
   Search,
   Message,
@@ -17,38 +17,40 @@ import {
   Help,
   Menu,
   Close,
-} from "@mui/icons-material";
-import { useDispatch, useSelector } from "react-redux";
-import { setLogout } from "../../state";
-import { useNavigate } from "react-router-dom";
-import FlexBetween from "../../components/FlexBetween";
+} from '@mui/icons-material'
+import { useDispatch, useSelector } from 'react-redux'
+import { setLogout } from '../../state'
+import { useNavigate } from 'react-router-dom'
+import FlexBetween from '../../components/FlexBetween'
 
 const Navbar = () => {
-  const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const user = useSelector((state) => state.user);
-  const isNonMobileScreens = useMediaQuery("(min-width: 1000px)");
+  const [isMobileMenuToggled, setIsMobileMenuToggled] = useState(false)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const user = useSelector((state) => state.user)
+  const isNonMobileScreens = useMediaQuery('(min-width: 1000px)')
 
-  const theme = useTheme();
-  const neutralLight = theme.palette.neutral.light;
-  const background = theme.palette.background.default;
-  const alt = theme.palette.background.alt;
+  const theme = useTheme()
+  const neutralLight = theme.palette.neutral.light
+  const background = theme.palette.background.default
+  const alt = theme.palette.background.alt
 
-  const fullName = `${user.name}`;
+  const fullName = `${user.name}`
+  const cutName = fullName.substring(0, 12)
 
   return (
-    <FlexBetween padding="1rem 6%" backgroundColor={alt}>
-      <FlexBetween gap="1.75rem">
+    <FlexBetween padding='1rem 6%' backgroundColor={alt}>
+      <FlexBetween gap='1.75rem'>
         <Typography
-          fontWeight="bold"
-          fontSize="clamp(1rem, 2rem, 2.25rem)"
-          color= {theme.palette.whiteWash}
-          onClick={() => navigate("/home")}
-          sx={{ transition: "all 0.3s",
-            "&:hover": {
-              letterSpacing: "4px",
-              cursor: "pointer",
+          fontWeight='bold'
+          fontSize='clamp(1rem, 2rem, 2.25rem)'
+          color={theme.palette.whiteWash}
+          onClick={() => navigate('/home')}
+          sx={{
+            transition: 'all 0.3s',
+            '&:hover': {
+              letterSpacing: '4px',
+              cursor: 'pointer',
             },
           }}
         >
@@ -58,27 +60,36 @@ const Navbar = () => {
 
       {/* DESKTOP NAV */}
       {isNonMobileScreens ? (
-        <FlexBetween gap="2rem">
-          <FormControl variant="standard" value={fullName}>
+        <FlexBetween gap='2rem'>
+          <FormControl variant='standard' value={fullName}>
             <Select
               value={fullName}
               sx={{
                 backgroundColor: theme.palette.neutral.main,
-                width: "150px",
-                borderRadius: "0.25rem",
-                p: "0.25rem 1rem",
-                "& .MuiSvgIcon-root": {
-                  pr: "0.25rem",
-                  width: "3rem",
+                width: '150px',
+                borderRadius: '0.25rem',
+                p: '0.25rem 1rem',
+                '& .MuiSvgIcon-root': {
+                  pr: '0.25rem',
+                  width: '3rem',
                 },
-                "& .MuiSelect-select:focus": {
+                '& .MuiSelect-select:focus': {
                   backgroundColor: theme.palette.neutral.main,
                 },
               }}
               input={<InputBase />}
             >
               <MenuItem value={fullName}>
-                <Typography>{fullName}</Typography>
+                <Typography>{cutName}</Typography>
+              </MenuItem>
+              <MenuItem value='Home' onClick={() => navigate(`/home`)}>
+                <Typography>Home</Typography>
+              </MenuItem>
+              <MenuItem
+                value='Profile'
+                onClick={() => navigate(`/profile/${user._id}`)}
+              >
+                <Typography>Profile</Typography>
               </MenuItem>
               <MenuItem onClick={() => dispatch(setLogout())}>Log Out</MenuItem>
             </Select>
@@ -96,52 +107,67 @@ const Navbar = () => {
       {/* MOBILE NAV */}
       {!isNonMobileScreens && isMobileMenuToggled && (
         <Box
-          position="fixed"
-          right="0"
-          bottom="0"
-          height="100%"
-          zIndex="10"
-          maxWidth="500px"
-          minWidth="300px"
+          position='fixed'
+          right='0'
+          bottom='0'
+          height='100%'
+          zIndex='10'
+          maxWidth='500px'
+          minWidth='300px'
           backgroundColor={background}
         >
           {/* CLOSE ICON */}
-          <Box display="flex" justifyContent="flex-end" p="1rem">
+          <Box display='flex' justifyContent='flex-end' p='1rem'>
             <IconButton
               onClick={() => setIsMobileMenuToggled(!isMobileMenuToggled)}
             >
-              <Close sx={{ color: theme.palette.whiteWash }}/>
+              <Close sx={{ color: theme.palette.whiteWash }} />
             </IconButton>
           </Box>
 
           {/* MENU ITEMS */}
           <FlexBetween
-            display="flex"
-            flexDirection="column"
-            justifyContent="center"
-            alignItems="center"
-            gap="3rem"
+            display='flex'
+            flexDirection='column'
+            justifyContent='center'
+            alignItems='center'
+            gap='3rem'
           >
-            <FormControl variant="standard" value={fullName}>
+            <FormControl variant='standard' value={fullName}>
               <Select
                 value={fullName}
                 sx={{
                   backgroundColor: theme.palette.neutral.main,
-                  width: "150px",
-                  borderRadius: "0.25rem",
-                  p: "0.25rem 1rem",
-                  "& .MuiSvgIcon-root": {
-                    pr: "0.25rem",
-                    width: "3rem",
+                  width: '150px',
+                  borderRadius: '0.25rem',
+                  p: '0.25rem 1rem',
+                  '& .MuiSvgIcon-root': {
+                    pr: '0.25rem',
+                    width: '3rem',
                   },
-                  "& .MuiSelect-select:focus": {
+                  '& .MuiSelect-select:focus': {
                     backgroundColor: theme.palette.neutral.main,
                   },
                 }}
                 input={<InputBase />}
               >
                 <MenuItem value={fullName}>
-                  <Typography>{fullName}</Typography>
+                  <Typography>{cutName}</Typography>
+                </MenuItem>
+                <MenuItem value='Home' onClick={() => navigate(`/home`)}>
+                  <Typography>Home</Typography>
+                </MenuItem>
+                <MenuItem
+                  value='Profile'
+                  onClick={() => navigate(`/profile/${user._id}`)}
+                >
+                  <Typography>Profile</Typography>
+                </MenuItem>
+                <MenuItem
+                  value='Messages'
+                  onClick={() => navigate(`/messages`)}
+                >
+                  <Typography>Messages</Typography>
                 </MenuItem>
                 <MenuItem onClick={() => dispatch(setLogout())}>
                   Log Out
@@ -152,7 +178,7 @@ const Navbar = () => {
         </Box>
       )}
     </FlexBetween>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar

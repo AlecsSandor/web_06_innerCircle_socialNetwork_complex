@@ -13,6 +13,7 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setPost } from '../../state'
 import { useNavigate } from 'react-router-dom'
+import { setPosts } from "../../state";
 
 const PostWidget = ({
   postId,
@@ -43,6 +44,23 @@ const PostWidget = ({
     const updatedPost = await response.json()
     dispatch(setPost({ post: updatedPost }))
   }
+  
+  const rePost = async () => {
+    const formData = new FormData();
+    formData.append("userId", loggedInUserId);
+    formData.append("description", description);
+    if (picturePath) {
+      formData.append("picturePath", picturePath);
+    }
+
+    const response = await fetch(`http://localhost:8080/posts`, {
+      method: "POST",
+      body: formData,
+    });
+    const posts = await response.json();
+    dispatch(setPosts({ posts }));
+    // setPost("");
+  };
 
   return (
     <WidgetWrapper mb='2rem'>
@@ -101,7 +119,7 @@ const PostWidget = ({
         </FlexBetween>
 
         <IconButton>
-          <ShareOutlined sx={{ color: palette.whiteWash }} />
+          <ShareOutlined sx={{ color: palette.whiteWash }} onClick={rePost} />
         </IconButton>
       </FlexBetween>
     </WidgetWrapper>
