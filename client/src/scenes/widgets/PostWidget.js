@@ -1,15 +1,12 @@
 import {
-  ChatBubbleOutlineOutlined,
   FavoriteBorderOutlined,
   FavoriteOutlined,
   ShareOutlined,
 } from '@mui/icons-material'
-import { Box, Divider, IconButton, Typography, useTheme } from '@mui/material'
+import { Box, IconButton, Typography, useTheme } from '@mui/material'
 import FlexBetween from '../../components/FlexBetween'
-// import Friend from "../../components/Friend";
 import WidgetWrapper from '../../components/WidgetWrapper'
 import UserImage from '../../components/UserImage'
-import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { setPost } from '../../state'
 import { useNavigate } from 'react-router-dom'
@@ -31,7 +28,6 @@ const PostWidget = ({
   const navigate = useNavigate()
   const { palette } = useTheme()
   const main = palette.neutral.main
-  const primary = palette.primary.main
 
   const patchLike = async () => {
     const response = await fetch(`http://localhost:8080/posts/${postId}/like`, {
@@ -59,7 +55,6 @@ const PostWidget = ({
     });
     const posts = await response.json();
     dispatch(setPosts({ posts }));
-    // setPost("");
   };
 
   return (

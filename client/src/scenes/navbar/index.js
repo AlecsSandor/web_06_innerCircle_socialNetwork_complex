@@ -11,10 +11,6 @@ import {
   useMediaQuery,
 } from '@mui/material'
 import {
-  Search,
-  Message,
-  Notifications,
-  Help,
   Menu,
   Close,
 } from '@mui/icons-material'
@@ -31,7 +27,6 @@ const Navbar = () => {
   const isNonMobileScreens = useMediaQuery('(min-width: 1000px)')
 
   const theme = useTheme()
-  const neutralLight = theme.palette.neutral.light
   const background = theme.palette.background.default
   const alt = theme.palette.background.alt
 

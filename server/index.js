@@ -1,8 +1,8 @@
 import express from 'express'
-import mongoose from 'mongoose'
-import dotenv from 'dotenv'
-import multer from 'multer'
-import cors from 'cors'
+import mongoose from 'mongoose' // to handle connections to MongoDb
+import dotenv from 'dotenv' // to enable environment variables
+import multer from 'multer' // to handle file uploads
+import cors from 'cors' // to handle access
 import path from 'path'
 import * as http from 'http'
 import { Server } from 'socket.io'
@@ -16,49 +16,56 @@ import {
   getUserPosts,
   likePost,
   getUser,
-} from './controllers/controllers.js'
+} from './controllers/controllers.js' // importing all actions for the different routes
 
 // Initializing Express
 const app = express()
 
-//middlware for origin access
+// Middlware for origin access
 app.use(cors())
 const PORT = 8080
 
+// Start the server
 const server = http.createServer(app)
 server.listen(PORT, () => {
   console.log('server running')
 })
 
-// Socket.io server ----------------------------------
+// Socket.io server ---------------------------------- This is used for the group chat feature
 const io = new Server(server, {
   cors: {
     origin: 'http://localhost:3000',
     methods: ['GET', 'POST'],
+    allowedHeaders: '*',
   },
 })
 
+// Check for every new connection to the server
 io.on('connection', (socket) => {
   console.log(`User Connected: ${socket.id}`)
 
-  socket.on("send_message", async (data) => {
-    if (data.message.includes("/gpt/")) {
-        socket.broadcast.emit("receive_message", data)
-        data.message = data.message.replace("/gpt/", "")
-        await processMessageToChatGPT(data.message).then((data) => {
-            let processedData = {
-                picturePath: "gpt.jpg",
-                author: "ChatGPT",
-                message: data,
-            }
-            io.emit("receive_message", processedData)
-        })
-        // io.emit("receive_message", response)
+  socket.on('send_message', async (data) => {
+    // Check to see if the client is calling for ChatGpt (using the prefix /gpt/ in the message body)
+    if (data.message.includes('/gpt/')) {
+      // Send the client message to all clients
+      socket.broadcast.emit('receive_message', data)
+      data.message = data.message.replace('/gpt/', '')
+      await processMessageToChatGPT(data.message).then((data) => {
+        let processedData = {
+          picturePath: 'gpt.jpg',
+          author: 'ChatGPT',
+          message: data,
+        }
+        // Send the ChatGpt reponse to client
+        io.emit('receive_message', processedData)
+      })
     } else {
-        socket.broadcast.emit("receive_message", data)
+      // Send the client message to all clients if /gpt/ was not used
+      socket.broadcast.emit('receive_message', data)
     }
-  });
+  })
 
+  // Check for every disconnection from the server
   socket.on('disconnect', () => {
     console.log('User Disconnected', socket.id)
   })
@@ -123,42 +130,52 @@ app.patch('/posts/:id/like', (req, res) => {
 })
 
 // OPEN AI REQUEST
-async function processMessageToChatGPT(chatMessages) { // messages is an array of messages
-    // Format messages for chatGPT API
-    // API is expecting objects in format of { role: "user" or "assistant", "content": "message here"}
+async function processMessageToChatGPT(chatMessages) {
+  // messages is an array of messages
+  // Format messages for chatGPT API
+  // API is expecting objects in format of { role: "user" or "assistant", "content": "message here"}
 
-    // let apiMessages = {role: "assistant", content: chatMessages}
-    // const systemMessage = {
-    //     role: "system",
-    //     content: "Give many details and be super friendly"
-    // }
+  // let apiMessages = {role: "assistant", content: chatMessages}
+  // const systemMessage = {
+  //     role: "system",
+  //     content: "Give many details and be super friendly"
+  // }
 
-    // Get the request body set up with the model we plan to use
-    // and the messages which we formatted above. We add a system message in the front to'
-    // determine how we want chatGPT to act. 
-    const apiRequestBody = {
-      "model": "gpt-3.5-turbo",
-      "messages":
-        [  
-            {"role": "assistant", "content": "Be very friendly, give details and ask questions. Limit all answears to 50 words."},
-            {"role": "user", "content": chatMessages},
-        ],
-        temperature: 0,
-    }
-
-    const answear = await fetch("https://api.openai.com/v1/chat/completions", 
-    {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + process.env.CHATGPTKEY,
-        "Content-Type": "application/json"
+  // Get the request body set up with the model we plan to use
+  // and the messages which we formatted above. We add a system message in the front to'
+  // determine how we want chatGPT to act.
+  const apiRequestBody = {
+    model: 'gpt-3.5-turbo',
+    messages: [
+      {
+        role: 'assistant',
+        content:
+          'Be very friendly, give details and ask questions. Limit all answears to 50 words.',
       },
-      body: JSON.stringify(apiRequestBody)
-    }).then((data) => {
-      return data.json();
-    })
-    .then((data) => {
-        return data.choices[0].message.content
-    });
-    return answear
+      { role: 'user', content: chatMessages },
+    ],
+    temperature: 0,
   }
+
+  try {
+    const answear = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + process.env.CHATGPTKEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(apiRequestBody),
+    })
+      .then((data) => {
+        return data.json()
+      })
+      .then((data) => {
+        return data.choices[0].message.content
+      })
+
+      return answear
+  } catch (err) {
+    console.log(err)
+  }
+
+}
